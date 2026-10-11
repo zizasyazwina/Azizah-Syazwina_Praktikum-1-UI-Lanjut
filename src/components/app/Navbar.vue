@@ -21,6 +21,7 @@ const menus = [
     ],
   },
   { name: 'Contact', path: '/contact' },
+  { name: 'Dashboard', path: '/dashboard' },
 ]
 
 const handleScroll = () => {
