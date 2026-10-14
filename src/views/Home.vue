@@ -1,13 +1,21 @@
+<script setup>
+import AppButton from '@/components/ui/AppButton.vue'
+import AppCard from '@/components/ui/AppCard.vue'
+</script>
+
 <template>
   <div class="home-page">
     <section class="hero-section">
       <div class="hero-content">
         <h1 class="hero-title">Connect, Discover, and Experience</h1>
         <p class="hero-subtitle">
-          A community event platform designed to bring ideas together. Discover hundreds of events near you.
+          A community event platform designed to bring ideas together. Discover hundreds of events
+          near you.
         </p>
         <div class="hero-action">
-          <router-link to="/browse/events" class="btn-primary">Discover Events</router-link>
+          <AppButton variant="primary" @click="$router.push('/browse/events')">
+            Discover Events
+          </AppButton>
         </div>
       </div>
     </section>
@@ -19,23 +27,27 @@
       </div>
 
       <div class="features-grid">
-        <div class="feature-card">
+        <AppCard class="feature-card">
           <div class="feature-icon">🔍</div>
           <h3>Discover Easily</h3>
-          <p>Find events tailored to your interests using our smart category and location filters.</p>
-        </div>
+          <p>
+            Find events tailored to your interests using our smart category and location filters.
+          </p>
+        </AppCard>
 
-        <div class="feature-card">
+        <AppCard class="feature-card">
           <div class="feature-icon">🎟️</div>
           <h3>Seamless Ticketing</h3>
-          <p>Register with one click and get your digital QR ticket instantly on your device.</p>
-        </div>
+          <p>Register with one click and get your digital QR tickets instantly on your device.</p>
+        </AppCard>
 
-        <div class="feature-card">
+        <AppCard class="feature-card">
           <div class="feature-icon">📊</div>
-          <h3>Host Like a Pro</h3>
-          <p>Manage attendees, track revenue, and scan QR codes with our comprehensive dashboard.</p>
-        </div>
+          <h3>All-in-One Dashboard</h3>
+          <p>
+            Manage attendees, track revenue, and scan QR codes with our comprehensive dashboard.
+          </p>
+        </AppCard>
       </div>
     </section>
   </div>
@@ -43,14 +55,14 @@
 
 <style scoped>
 .hero-section {
-  /* THE FOLD: Force hero height to viewport minus navbar */
+  /* Force hero height to viewport minus navbar */
   min-height: 65vh;
   display: flex;
   align-items: center;
   justify-content: center;
   text-align: center;
   background: var(--bg-light);
-  border-radius: var(--space-6);
+  border-radius: var(--space-4);
   border: 1px solid var(--border-color);
   padding: var(--space-12) var(--space-6);
   margin-bottom: var(--space-12);
@@ -64,8 +76,8 @@
   align-items: center;
 }
 
-/* SCALE: Massive font sets the highest Ranked Importance */
 .hero-title {
+  /* SCALE: Massive font sets the highest Ranked Importance */
   font-size: 4rem;
   font-weight: 800;
   color: var(--text-main);
@@ -80,27 +92,9 @@
   max-width: 600px;
 }
 
-.btn-primary {
-  background-color: var(--primary);
-  color: white;
-  font-size: 1.1rem;
-  font-weight: 600;
-  text-decoration: none;
-  padding: var(--space-3) var(--space-8);
-  border-radius: 12px;
-  transition: transform 0.2s, background-color 0.2s;
-  /* Make button pop to pass the Squint Test */
-  box-shadow: 0 8px 20px rgba(102, 68, 255, 0.3);
-}
-
-.btn-primary:hover {
-  background-color: var(--primary-hover);
-  transform: translateY(-2px);
-}
-
-/* --- NEW FEATURES SECTION --- */
+/* WHY GATHERLY SECTION */
 .features-section {
-  padding: 0 0 var(--space-12) 0;
+  padding: 0 var(--space-2);
 }
 
 .features-header {
@@ -122,21 +116,12 @@
 .features-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-  gap: var(--space-8);
+  gap: var(--space-6);
 }
 
 .feature-card {
-  background: var(--bg-light);
   padding: var(--space-8);
-  border-radius: var(--space-4);
-  border: 1px solid var(--border-color);
   text-align: center;
-  transition: transform 0.2s, box-shadow 0.2s;
-}
-
-.feature-card:hover {
-  transform: translateY(-5px);
-  box-shadow: 0 10px 25px rgba(0,0,0,0.04);
 }
 
 .feature-icon {
