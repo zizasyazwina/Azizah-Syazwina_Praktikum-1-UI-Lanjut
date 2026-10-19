@@ -1,58 +1,89 @@
 <script setup>
+import { computed } from 'vue'
+import { useRoute, useRouter } from 'vue-router'
+import { useEvents } from '@/composables/useEvents'
 import AppButton from '@/components/ui/AppButton.vue'
 import AppCard from '@/components/ui/AppCard.vue'
+
+const route = useRoute()
+const router = useRouter()
+const { getEventById } = useEvents()
+
+const event = computed(() => getEventById(route.params.id))
 </script>
 
 <template>
   <div class="event-detail-page">
-    <button class="btn-back" @click="$router.push('/browse/events')">← Back to Events</button>
+    <button class="btn-back" @click="router.push('/browse/events')">&larr; Back to Events</button>
 
-    <div class="detail-header">
-      <div class="event-category-badge">Workshop & Training</div>
-      <h1 class="event-title">Mastering UI/UX: A Hands-on Workshop</h1>
-      <div class="meta-info">
-        <span class="meta-item">📅 October 12, 2026 / 09:00 AM</span>
-        <span class="meta-item">📍 Telkom University, Jakarta</span>
-        <span class="meta-item">🎟️ Quota: 150 Seats</span>
+    <!-- Graceful degradation / populated state -->
+    <div v-if="event" class="detail-container">
+      <div class="detail-header">
+        <div class="header-tags">
+          <span class="category-pill">{{ event.cat }}</span>
+          <span v-if="event.done" class="status-tag status-ended"> Event Concluded </span>
+          <span v-else class="status-tag status-live"> Open Registration </span>
+        </div>
+        <h1 class="event-title">{{ event.title }}</h1>
+        <div class="meta-info">
+          <span class="meta-item">📅 {{ event.date }}</span>
+          <span class="meta-item">{{ event.loc }}</span>
+          <span class="meta-item">🎟️ Quota: {{ event.quota }} Attendees</span>
+        </div>
+      </div>
+
+      <div class="detail-content grid-asymmetric">
+        <div class="main-content">
+          <AppCard class="detail-card">
+            <h2>About This Event</h2>
+            <p class="description-text">{{ event.desc }}</p>
+          </AppCard>
+        </div>
+
+        <div class="detail-sidebar">
+          <AppCard class="ticket-card sticky-pane">
+            <div class="ticket-header">
+              <h3>Attendee Registration</h3>
+              <p class="ticket-price">{{ event.price }}</p>
+              <p class="ticket-hint">
+                {{
+                  event.done
+                    ? 'Registration has ended for this event.'
+                    : 'Secure your seat now before quota runs out.'
+                }}
+              </p>
+            </div>
+
+            <div class="action-footer">
+              <AppButton
+                v-if="!event.done"
+                variant="primary"
+                class="btn-register"
+                @click="alert(`Registered successfully for ${event.title}!`)"
+              >
+                Register Now ({{ event.price }})
+              </AppButton>
+              <AppButton v-else variant="secondary" class="btn-disabled" disabled>
+                Registration Closed
+              </AppButton>
+            </div>
+
+            <p v-if="!event.done" class="ticket-note">Only {{ event.quota }} seats available!</p>
+          </AppCard>
+        </div>
       </div>
     </div>
 
-    <div class="grid-asymmetric">
-      <div class="main-content">
-        <AppCard class="detail-card">
-          <h2>About This Event</h2>
-          <p>
-            Get hands-on with the latest web interface development training event of the year! This
-            workshop is crafted to help you master UI/UX and component-based interface design.
-          </p>
-          <p>
-            In this session, we will discuss various current industry challenges, dissect the
-            implementation of Single Page Applications (SPA), and practice hands-on UI layout system
-            design.
-          </p>
-
-          <h2>Event Agenda</h2>
-          <ul class="agenda-list">
-            <li><strong>09:00 AM</strong> — Registration & Check-in Screening</li>
-            <li><strong>10:00 AM</strong> — Session 1: View Hierarchy & Navigation Fundamentals</li>
-            <li><strong>11:00 AM</strong> — Coffee Break & Networking</li>
-            <li><strong>01:00 PM</strong> — Session 2: Layout System & Grid Implementation</li>
-            <li><strong>03:00 PM</strong> — Q&A & Closing Remarks</li>
-          </ul>
-        </AppCard>
-      </div>
-
-      <div class="detail-sidebar">
-        <AppCard class="ticket-card sticky-pane">
-          <div class="ticket-header">
-            <h3>Attendee Registration</h3>
-            <p class="ticket-price">Free</p>
-            <p>Secure your seat now before the quota is full.</p>
-          </div>
-          <AppButton variant="primary" class="btn-register"> Register Now </AppButton>
-          <p class="ticket-note">Only 12 seats left!</p>
-        </AppCard>
-      </div>
+    <!-- 404 / NOT FOUND STATE -->
+    <div v-else class="not-found-card">
+      <div class="not-found-icon">🔍</div>
+      <h2>404 - Event Not Found</h2>
+      <p class="not-found-message">
+        The event you are looking for does not exist or has been removed by the organizer.
+      </p>
+      <AppButton variant="primary" @click="router.push('/browse/events')">
+        Back to Event Catalog
+      </AppButton>
     </div>
   </div>
 </template>
@@ -88,15 +119,39 @@ import AppCard from '@/components/ui/AppCard.vue'
   margin-bottom: var(--space-8);
 }
 
-.event-category-badge {
-  display: inline-block;
+.header-tags {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  margin-bottom: var(--space-4);
+  flex-wrap: wrap;
+}
+
+.category-pill {
   background: rgba(102, 68, 255, 0.1);
   color: var(--primary);
   padding: var(--space-1) var(--space-4);
   border-radius: 50px;
   font-weight: 600;
   font-size: 0.9rem;
-  margin-bottom: var(--space-4);
+  text-transform: uppercase;
+}
+
+.status-tag {
+  padding: var(--space-1) var(--space-3);
+  border-radius: 50px;
+  font-size: 0.85rem;
+  font-weight: 600;
+}
+
+.status-live {
+  background: rgba(46, 204, 113, 0.15);
+  color: #2ecc71;
+}
+
+.status-ended {
+  background: rgba(108, 117, 125, 0.15);
+  color: #6c757d;
 }
 
 .event-title {
@@ -119,7 +174,6 @@ import AppCard from '@/components/ui/AppCard.vue'
   font-size: 1.05rem;
 }
 
-/* ASYMMETRICAL GRID */
 .grid-asymmetric {
   display: grid;
   grid-template-columns: 2fr 1fr;
@@ -132,40 +186,20 @@ import AppCard from '@/components/ui/AppCard.vue'
 }
 
 .detail-card h2 {
-  margin-top: var(--space-6);
-  margin-bottom: var(--space-4);
   font-size: 1.6rem;
   color: var(--text-main);
   border-left: 4px solid var(--primary);
   padding-left: var(--space-3);
-}
-
-.detail-card h2:first-child {
   margin-top: 0;
+  margin-bottom: var(--space-4);
 }
 
-.detail-card p {
+.description-text {
   color: var(--text-muted);
   line-height: 1.8;
   margin-bottom: var(--space-6);
-  font-size: 1.05rem;
-}
-
-.agenda-list {
-  list-style: none;
-  padding: 0;
-  margin: 0;
-}
-
-.agenda-list li {
-  padding: var(--space-3) 0;
-  border-bottom: 1px solid var(--border-color);
-  color: var(--text-muted);
-  font-size: 1.05rem;
-}
-
-.agenda-list li:last-child {
-  border-bottom: none;
+  font-size: 1.1rem;
+  white-space: pre-line;
 }
 
 .ticket-card {
@@ -191,12 +225,19 @@ import AppCard from '@/components/ui/AppCard.vue'
   margin: var(--space-2) 0;
 }
 
-.ticket-header p {
+.ticket-hint {
   color: var(--text-muted);
   margin-bottom: var(--space-6);
+  line-height: 1.5;
+  font-size: 0.95rem;
 }
 
-.btn-register {
+.action-footer {
+  margin-bottom: var(--space-4);
+}
+
+.btn-register,
+.btn-disabled {
   width: 100%;
 }
 
@@ -205,6 +246,32 @@ import AppCard from '@/components/ui/AppCard.vue'
   color: #e63946;
   font-weight: 600;
   font-size: 0.95rem;
+}
+
+.not-found-card {
+  text-align: center;
+  padding: var(--space-12);
+  background: white;
+  border-radius: var(--space-4);
+  border: 1px solid var(--border-color);
+  max-width: 600px;
+  margin: var(--space-8) auto;
+}
+
+.not-found-icon {
+  font-size: 3.5rem;
+  margin-bottom: var(--space-3);
+}
+
+.not-found-card h2 {
+  margin-bottom: var(--space-2);
+  color: var(--text-main);
+}
+
+.not-found-message {
+  color: var(--text-muted);
+  margin-bottom: var(--space-6);
+  font-size: 1.05rem;
 }
 
 @media (max-width: 900px) {
