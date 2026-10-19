@@ -3,16 +3,16 @@
     <div class="event-body">
       <div class="event-meta">
         <span class="event-date">{{ event.date }}</span>
-        <span class="event-category">{{ event.category }}</span>
+        <span class="event-category">{{ event.cat || event.category }}</span>
       </div>
 
       <h3 class="event-title">{{ event.title }}</h3>
-      <p class="event-loc">📍 {{ event.loc }}</p>
+      <p class="event-loc">{{ event.loc }}</p>
       <p class="event-desc">{{ event.desc }}</p>
 
       <div class="card-footer">
         <button class="btn-link" @click="$emit('view-detail', event.id)">
-          View Event Details →
+          View Event Details &rarr;
         </button>
       </div>
     </div>

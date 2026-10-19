@@ -1,78 +1,28 @@
 <script setup>
 import { ref, computed } from 'vue'
 import { useRouter } from 'vue-router'
-// eslint-disable-next-line no-unused-vars
-import AppCard from '@/components/ui/AppCard.vue'
-// eslint-disable-next-line no-unused-vars
-import AppButton from '@/components/ui/AppButton.vue'
+import { useEvents } from '@/composables/useEvents'
 import EventCard from '@/components/event/EventCard.vue'
 import SearchBar from '@/components/event/SearchBar.vue'
 import CategoryFilter from '@/components/event/CategoryFilter.vue'
+import AppButton from '@/components/ui/AppButton.vue'
 
 const router = useRouter()
-
-const events = ref([
-  {
-    id: 1,
-    title: 'Vue.js Mastery Workshop',
-    date: 'Oct 12, 2026',
-    loc: 'Telkom University, Jakarta',
-    category: 'Workshop',
-    desc: 'Learn advanced Vue.js concepts and build high-performance applications.',
-  },
-  {
-    id: 2,
-    title: 'National Tech Meetup',
-    date: 'Oct 15, 2026',
-    loc: 'Jakarta',
-    category: 'Meetup',
-    desc: 'A gathering of technology enthusiasts to discuss current trends.',
-  },
-  {
-    id: 3,
-    title: 'Startup Pitch Competition',
-    date: 'Oct 20, 2026',
-    loc: 'Jakarta',
-    category: 'Competition',
-    desc: 'Showcase your startup idea and receive feedback from mentors.',
-  },
-  {
-    id: 4,
-    title: 'UI/UX Design Sprint',
-    date: 'Nov 10, 2026',
-    loc: 'Telkom University, Jakarta',
-    category: 'Workshop',
-    desc: 'A hands-on session on designing user interfaces by implementing layout systems and visual hierarchy principles.',
-  },
-  {
-    id: 5,
-    title: 'Digital Marketing Seminar',
-    date: 'Nov 20, 2026',
-    loc: 'Grand Hotel Hall, Jakarta',
-    category: 'Seminar',
-    desc: 'An in-depth seminar dissecting modern digital marketing strategies, from SEO optimization to user conversion tactics.',
-  },
-  {
-    id: 6,
-    title: 'Community Leaders Summit',
-    date: 'Dec 05, 2026',
-    loc: 'Gatherly HQ, Jakarta',
-    category: 'Conference',
-    desc: 'An exclusive year-end conference for community leaders to formulate sustainable ecosystem development strategies.',
-  },
-])
+const { activeEvents } = useEvents()
 
 const searchQuery = ref('')
 const selectedCategory = ref('All')
 const categories = ['All', 'Workshop', 'Meetup', 'Competition', 'Seminar', 'Conference']
 
 const filteredEvents = computed(() => {
-  return events.value.filter((event) => {
+  return activeEvents.value.filter((event) => {
     const matchesSearch =
       event.title.toLowerCase().includes(searchQuery.value.toLowerCase()) ||
       event.loc.toLowerCase().includes(searchQuery.value.toLowerCase())
     const matchesCategory =
-      selectedCategory.value === 'All' || event.category === selectedCategory.value
+      selectedCategory.value === 'All' ||
+      event.cat === selectedCategory.value ||
+      event.category === selectedCategory.value
     return matchesSearch && matchesCategory
   })
 })
@@ -94,7 +44,8 @@ const handleViewDetail = (id) => {
       <CategoryFilter :categories="categories" v-model="selectedCategory" />
     </div>
 
-    <div class="events-grid">
+    <!-- POPULATED STATE -->
+    <div v-if="filteredEvents.length > 0" class="events-grid">
       <EventCard
         v-for="event in filteredEvents"
         :key="event.id"
@@ -103,8 +54,17 @@ const handleViewDetail = (id) => {
       />
     </div>
 
-    <div v-if="filteredEvents.length === 0" class="empty-state">
-      No events found matching your criteria.
+    <!-- FRIENDLY EMPTY STATE -->
+    <div v-else class="empty-state-card">
+      <div class="empty-illustration">📭</div>
+      <h3 class="empty-title">No Events Available Yet</h3>
+      <p class="empty-description">
+        There are currently no active events scheduled. Please check back later or publish your own
+        event from the organizer dashboard.
+      </p>
+      <AppButton variant="primary" @click="router.push('/dashboard/events')">
+        Go to Organizer Dashboard &rarr;
+      </AppButton>
     </div>
   </div>
 </template>
@@ -139,15 +99,35 @@ const handleViewDetail = (id) => {
   gap: var(--space-6);
 }
 
-.empty-state {
+.empty-state-card {
   text-align: center;
   padding: var(--space-12) var(--space-6);
-  color: var(--text-muted);
-  font-size: 1.1rem;
-  background: var(--bg-light);
+  background: white;
   border-radius: var(--space-4);
-  border: 1px dashed var(--border-color);
+  border: 1px solid var(--border-color);
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.02);
   margin-top: var(--space-6);
+  max-width: 600px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.empty-illustration {
+  font-size: 3.5rem;
+  margin-bottom: var(--space-3);
+}
+
+.empty-title {
+  font-size: 1.5rem;
+  color: var(--text-main);
+  margin-bottom: var(--space-2);
+}
+
+.empty-description {
+  color: var(--text-muted);
+  font-size: 1rem;
+  line-height: 1.6;
+  margin-bottom: var(--space-6);
 }
 
 @keyframes fadeIn {
