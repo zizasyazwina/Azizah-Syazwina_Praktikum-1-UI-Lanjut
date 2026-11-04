@@ -1,5 +1,11 @@
 <template>
-  <button :class="['app-button', `btn-${variant}`]" @click="$emit('click', $event)">
+  <button
+    :type="type"
+    :class="['app-button', `btn-${variant}`, { 'btn-loading': loading }]"
+    :disabled="disabled || loading"
+    @click="$emit('click', $event)"
+  >
+    <span v-if="loading" class="btn-spinner"></span>
     <slot />
   </button>
 </template>
@@ -8,9 +14,22 @@
 defineProps({
   variant: {
     type: String,
-    default: 'primary',
+    default: 'primary', // 'primary', 'secondary', 'outline'
+  },
+  type: {
+    type: String,
+    default: 'button',
+  },
+  disabled: {
+    type: Boolean,
+    default: false,
+  },
+  loading: {
+    type: Boolean,
+    default: false,
   },
 })
+
 defineEmits(['click'])
 </script>
 
@@ -30,8 +49,18 @@ defineEmits(['click'])
     background-color 0.2s;
 }
 
-.app-button:hover:not(:disabled):not(.btn-disabled) {
+.app-button:hover:not(:disabled) {
   transform: translateY(-2px);
+}
+
+.app-button:disabled {
+  opacity: 0.65;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.btn-loading {
+  cursor: wait;
 }
 
 .btn-primary {
@@ -40,7 +69,7 @@ defineEmits(['click'])
   box-shadow: 0 8px 20px rgba(102, 68, 255, 0.3);
 }
 
-.btn-primary:hover:not(:disabled):not(.btn-disabled) {
+.btn-primary:hover {
   background-color: var(--primary-hover);
 }
 
@@ -49,24 +78,17 @@ defineEmits(['click'])
   color: var(--text-main);
 }
 
-.btn-secondary:hover:not(:disabled):not(.btn-disabled) {
-  background: #e8e8e8;
+.btn-secondary:hover {
+  background-color: #e0e0e0;
 }
 
 .btn-outline {
-  background: transparent;
+  background-color: transparent;
   color: var(--primary);
   border: 1px solid var(--primary);
 }
 
-.btn-outline:hover:not(:disabled):not(.btn-disabled) {
-  background: rgba(102, 68, 255, 0.1);
-}
-
-.app-button:disabled,
-.app-button.btn-disabled {
-  opacity: 0.6;
-  cursor: not-allowed;
-  box-shadow: none;
+.btn-outline:hover {
+  background-color: rgba(102, 68, 255, 0.1);
 }
 </style>
